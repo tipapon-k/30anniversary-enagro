@@ -268,10 +268,7 @@ footer .cp{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.14);padding-t
 @media(max-width:820px){.lgrid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.hb{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) 2.6em;font-size:14px}}
 @media (prefers-reduced-motion:reduce){.pill i{animation:none}}
-.heroM{margin-left:0!important}
-.heroM .bubble{right:0!important;white-space:nowrap;text-align:center;line-height:1.3}
-.heroM .bubble::after{right:42px!important;left:auto!important}
-   
+
 /* gallery */
 .gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(130px,15vw,200px);gap:12px}
 .gal button{position:relative;padding:0;border:0;border-radius:18px;overflow:hidden;cursor:zoom-in;background:var(--pinkS);box-shadow:0 10px 24px -18px rgba(86,13,34,.5)}
@@ -484,6 +481,11 @@ nav .btn.go::after{content:"";position:absolute;inset:0;z-index:-1;background:li
 .plb button{position:absolute;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font-size:22px;cursor:pointer}
 .plb .x{top:14px;right:14px}.plb .pv{left:14px;top:50%;margin-top:-24px}.plb .nx{right:14px;top:50%;margin-top:-24px}
 body.lock{overflow:hidden}
+
+/* คำพูดน้องเฟือง: ไม่ให้ทับโลโก้ — น้องเฟืองไม่ซ้อนโลโก้ และกล่องคำพูดแบ่ง 2 บรรทัด ชิดขวาเหนือหัวน้องเฟือง */
+.heroM{margin-left:0!important}
+.heroM .bubble{right:0!important;white-space:nowrap;text-align:center;line-height:1.3}
+.heroM .bubble::after{right:42px!important;left:auto!important}
 </style>
 </head>
 <body>
@@ -1304,7 +1306,7 @@ tote:'<path d="M44 34 Q60 6 76 34" stroke="#b98a92" stroke-width="5" fill="none"
 tum:'<rect x="44" y="10" width="32" height="12" rx="4" fill="#560d22"/><path d="M42 22 H78 L74 98 H46Z" fill="#e98aa2"/><path d="M42 22 H52 L50 98 H46Z" fill="#fff" opacity=".35"/><rect x="46" y="48" width="28" height="22" rx="3" fill="#fff6e6"/><image href="logo30.webp" x="48" y="52" width="24" height="16.9"/>',
 cap:'<path d="M24 70 Q28 30 60 30 Q92 30 96 70Z" fill="#7b1530"/><path d="M60 70 H112 Q104 84 84 82 H60Z" fill="#560d22"/><circle cx="60" cy="31" r="4" fill="#f6c9d4"/><ellipse cx="60" cy="54" rx="17" ry="12" fill="#fff6e6" opacity=".95"/><image href="logo30.webp" x="46" y="46.5" width="28" height="19.7"/>'};
 /* รูปสินค้าจริง: วางไฟล์รูปไว้โฟลเดอร์เดียวกับหน้านี้ แล้วใส่ชื่อไฟล์ เช่น shirt:'shirt.jpg' ถ้าเว้นว่างจะใช้ภาพวาด */
-const PHOTO={shirt:'shirt.jpg?v=2',tote:'tote.jpg?v=2',tum:'tum.jpg?v=3',cap:'cap.jpg?v=5'};
+const PHOTO={shirt:'shirt.jpg?v=3',tote:'tote.jpg?v=2',tum:'tum.jpg?v=3',cap:'cap.jpg?v=5'};
 const list=[['shirt','เสื้อที่ระลึก','350 บาท'],['tote','กระเป๋าผ้า','250 บาท'],['tum','แก้วเก็บความเย็น','300 บาท'],['cap','หมวก','250 บาท']];
 $('items').innerHTML=list.map(([k,n,p])=>`<div class="card">${PHOTO[k]?`<button type="button" class="zoom" data-name="${n}" data-price="${p}" aria-label="ขยายรูป${n}"><img class="ph" src="${PHOTO[k]}" alt="${n}" loading="lazy"><span class="zi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21M10.5 7.5v6M7.5 10.5h6"/></svg>ขยาย</span></button>`:`<svg viewBox="0 0 120 104" aria-hidden="true">${sv[k]}</svg>`}<b>${n}</b><span>${p}</span></div>`).join('');
 }
@@ -1355,7 +1357,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')nav.classList.remove
 </script>
 <script>
 /* ช่องทางติดต่อ: เติมค่าจริงตรงนี้ที่เดียว ช่องที่ว่างจะแสดง "รอประกาศ" ปุ่ม LINE ลอยจะแสดงเมื่อใส่ lineUrl */
-const CONTACT={phone:'',lineId:'',lineUrl:'',email:''};
+const CONTACT={phone:'053-875000',lineId:'',lineUrl:'',email:''};
 (()=>{const T='<i class="tbd">รอประกาศ</i>',e=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const C=CONTACT,ph=C.phone?`<a href="tel:${e(C.phone.replace(/[^0-9+]/g,''))}">${e(C.phone)}</a>`:T,
 ln=C.lineId?(C.lineUrl?`<a href="${e(C.lineUrl)}" target="_blank" rel="noopener">${e(C.lineId)}</a>`:e(C.lineId)):T,
