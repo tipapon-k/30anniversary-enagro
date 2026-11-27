@@ -486,6 +486,11 @@ body.lock{overflow:hidden}
 .heroM{margin-left:0!important}
 .heroM .bubble{right:0!important;white-space:nowrap;text-align:center;line-height:1.3}
 .heroM .bubble::after{right:42px!important;left:auto!important}
+
+.figs b#sTop.tie{font-size:clamp(20px,2.6vw,30px);line-height:1.3}#sTopL .ps,#sTopL .sep{display:none}#sTopL .nw{display:block}#sTopL .cnt{margin-top:2px;font-weight:600}@media(max-width:600px){#sTopL .pf{display:none}#sTopL .ps,#sTopL .sep{display:inline}#sTopL .nw{display:inline}#sTopL .cnt{font-weight:400}}
+
+/* ช่องติ๊กยินยอม: ให้ตรงกับบรรทัดแรกของข้อความ (กันกฎ input สูง 46px) */
+label.cons input[type=checkbox]{height:20px!important;min-height:0!important;width:20px!important;margin:2px 0 0!important;padding:0;flex:none}
 </style>
 </head>
 <body>
@@ -1151,22 +1156,32 @@ const U=p=>/^วิศวกรรม/.test(p)?'เกียร์':'รุ่�
 // ป้ายรุ่นรายตัว: วิศวกรรม = เกียร์ N · สาขาอื่น = ปีเข้า (พ.ศ. 2 หลักท้าย)
 const SY={'วิทยาศาสตร์และเทคโนโลยีการอาหาร':2537,'เทคโนโลยีหลังการเก็บเกี่ยว':2538,'เทคโนโลยียางและพอลิเมอร์':2548};
 const L=(p,i)=>SY[p]?'ปีเข้า '+String((SY[p]+Number(i)-1)%100).padStart(2,'0'):'เกียร์ '+i;
+const SHORT={'วิศวกรรมเกษตร':'วิศวกรรมเกษตร','วิศวกรรมอาหาร':'วิศวกรรมอาหาร','วิทยาศาสตร์และเทคโนโลยีการอาหาร':'วิทย์ฯ อาหาร','เทคโนโลยีหลังการเก็บเกี่ยว':'หลังการเก็บเกี่ยว','เทคโนโลยียางและพอลิเมอร์':'ยางและพอลิเมอร์'};
+/* รุ่นที่มากที่สุดเท่ากันหลายรุ่น: แสดงทุกรุ่น (สูงสุด 3 + และอีก N รุ่น) */
+const tieList=(arr,fmt)=>arr.length>3?arr.slice(0,3).map(fmt).join(' · ')+` และอีก ${arr.length-3} รุ่น`:arr.map(fmt).join(' · ');
+const Ls=(p,ks)=>{const a=ks.map(k=>L(p,k)),u=a[0].split(' ')[0];return a.length===1?a[0]:u+' '+a.map(x=>x.split(' ')[1]).join(', ').replace(/, ([^,]*)$/,' และ $1')};
+/* กล่องรุ่นที่มากที่สุด: คอมพิวเตอร์ = ชื่อหลักสูตรเต็ม บรรทัดละสาขา · มือถือ = ชื่อย่อ ต่อกันด้วย · */
+const tieHtml=(ties,v)=>{const g=[...new Set(ties.map(t=>t[0]))].map(p=>[p,ties.filter(t=>t[0]===p).map(t=>t[1])]),sep='<span class="sep"> · </span>';
+ const it=g.slice(0,3).map(([p,ks])=>`<span class="nw"><span class="pf">${p}</span><span class="ps">${SHORT[p]}</span> ${Ls(p,ks)}</span>`);
+ if(g.length>3)it.push(`<span class="nw">และอีก ${g.length-3} สาขา</span>`);return it.join(sep)+sep+`<span class="nw cnt">${v} คน เท่ากัน</span>`};
+const topsOf=(c,ks)=>{const m=Math.max(0,...ks.map(k=>c[k]));return m?ks.filter(k=>c[k]===m).sort((a,b)=>a-b):[]};
 const drawSum=data=>{let tot=0,coh=0,progN=0,best=null;
 const rows=data.map(([p,c])=>{const ks=Object.keys(c).map(Number);const s=ks.reduce((a,k)=>a+c[k],0);tot+=s;coh+=ks.length;if(s)progN++;
 ks.forEach(k=>{if(!best||c[k]>best[2])best=[p,k,c[k]]});return [p,c,s,ks]});
+const bestV=best?best[2]:0,ties=[];rows.forEach(([p,c,s,ks])=>ks.slice().sort((a,b)=>a-b).forEach(k=>{if(bestV&&c[k]===bestV)ties.push([p,k])}));
 const mx=Math.max(1,...rows.map(r=>r[2]));
-$('progs').innerHTML=rows.map(([p,c,s,ks])=>{const last=Math.max(...ks,1);const cm=Math.max(1,...ks.map(k=>c[k]));let top=ks.sort((a,b)=>c[b]-c[a])[0];
-let cols='';for(let i=1;i<=last;i++){const v=c[i]||0;cols+=`<i class="${v?(i===top?'top':''):'none'}" style="height:${v/cm*100}%" title="${L(p,i)}: ${v} คน"></i>`}
-return `<div class="prog"><div class="row"><b>${p}</b><span>${ks.length} รุ่น</span><strong>${s.toLocaleString('th-TH')} คน</strong></div><div class="trackW"><div class="track" role="progressbar" aria-label="${p}" aria-valuenow="${s}" aria-valuemax="${mx}"><i style="width:${s/mx*100}%"></i></div>${s?`<svg class="masc rider" style="--w:60px;left:clamp(26px,${s/mx*100}%,calc(100% - 26px))" viewBox="0 0 200 262" aria-hidden="true"><use href="#mascot-${s===mx?'cheer':'sack'}${SFX}"/></svg>`:''}</div>${ks.length?`<div class="cols" aria-hidden="true">${cols}</div><div class="axis"><span>${L(p,1)}</span><span>${L(p,last)}</span></div><p class="topc">มามากที่สุด <b>${L(p,top)}</b> · ${c[top]} คน</p>`:'<p class="topc">ยังไม่มีผู้ลงทะเบียน</p>'}</div>`}).join('');
+$('progs').innerHTML=rows.map(([p,c,s,ks])=>{const last=Math.max(...ks,1);const cm=Math.max(1,...ks.map(k=>c[k]));const tops=topsOf(c,ks),top=tops[0];
+let cols='';for(let i=1;i<=last;i++){const v=c[i]||0;cols+=`<i class="${v?(tops.includes(i)?'top':''):'none'}" style="height:${v/cm*100}%" title="${L(p,i)}: ${v} คน"></i>`}
+return `<div class="prog"><div class="row"><b>${p}</b><span>${ks.length} รุ่น</span><strong>${s.toLocaleString('th-TH')} คน</strong></div><div class="trackW"><div class="track" role="progressbar" aria-label="${p}" aria-valuenow="${s}" aria-valuemax="${mx}"><i style="width:${s/mx*100}%"></i></div>${s?`<svg class="masc rider" style="--w:60px;left:clamp(26px,${s/mx*100}%,calc(100% - 26px))" viewBox="0 0 200 262" aria-hidden="true"><use href="#mascot-${s===mx?'cheer':'sack'}${SFX}"/></svg>`:''}</div>${ks.length?`<div class="cols" aria-hidden="true">${cols}</div><div class="axis"><span>${L(p,1)}</span><span>${L(p,last)}</span></div><p class="topc">มามากที่สุด <b>${Ls(p,tops)}</b> · ${c[top]} คน${tops.length>1?' เท่ากัน':''}</p>`:'<p class="topc">ยังไม่มีผู้ลงทะเบียน</p>'}</div>`}).join('');
 $('sTot').textContent=tot.toLocaleString('th-TH');$('mSay').textContent=`มากันแล้ว ${tot.toLocaleString('th-TH')} คน!`;$('sProg').textContent=progN+'/5';$('sCoh').textContent=coh;
-$('sTop').textContent=best?L(best[0],best[1]):'–';$('sTopL').textContent=best?`${best[0]} · ${best[2]} คน`:'รุ่นที่มามากที่สุด'};
+$('sTop').classList.toggle('tie',ties.length>1);$('sTop').textContent=!best?'–':ties.length>1?`${ties.length} รุ่นเท่ากัน`:L(best[0],best[1]);$('sTopL').innerHTML=!best?'รุ่นที่มามากที่สุด':ties.length>1?`${tieHtml(ties,bestV)}`:`${best[0]} · ${best[2]} คน`};
 drawSum(sample());
 
 // ส่งความคิดถึง: d={programs:[[หลักสูตร,{รุ่น:คน}]],noCohort:{หลักสูตร:คน},others:คน,orders:คำสั่งซื้อ}
 const drawSend=d=>{const nc=d.noCohort||{};let tot=d.others||0,coh=0,pn=0;
-const rows=d.programs.map(([p,c])=>{const ks=Object.keys(c).map(Number);const s=ks.reduce((a,k)=>a+c[k],0)+(nc[p]||0);tot+=s;coh+=ks.length;if(s)pn++;const top=ks.sort((a,b)=>c[b]-c[a])[0];return [p,s,ks.length,top,top?c[top]:0]});
+const rows=d.programs.map(([p,c])=>{const ks=Object.keys(c).map(Number);const s=ks.reduce((a,k)=>a+c[k],0)+(nc[p]||0);tot+=s;coh+=ks.length;if(s)pn++;const tops=topsOf(c,ks),top=tops[0];return [p,s,ks.length,tops,top?c[top]:0]});
 const mx=Math.max(1,...rows.map(r=>r[1])),f=n=>n.toLocaleString('th-TH');
-$('sbars').innerHTML=rows.map(([p,s,n,top,tv])=>`<div class="sbar"><div class="row"><b>${p}</b><span>${n} รุ่น</span><strong>${f(s)} คน</strong></div><div class="tk" role="progressbar" aria-label="${p} ส่งความคิดถึง" aria-valuenow="${s}" aria-valuemax="${mx}"><i style="width:${s/mx*100}%"></i></div><p>${top?`ส่งมากที่สุด <b>${L(p,top)}</b> · ${tv} คน`:(s?'ยังไม่ระบุรุ่น':'ยังไม่มีผู้สั่ง')}</p></div>`).join('');
+$('sbars').innerHTML=rows.map(([p,s,n,tops,tv])=>`<div class="sbar"><div class="row"><b>${p}</b><span>${n} รุ่น</span><strong>${f(s)} คน</strong></div><div class="tk" role="progressbar" aria-label="${p} ส่งความคิดถึง" aria-valuenow="${s}" aria-valuemax="${mx}"><i style="width:${s/mx*100}%"></i></div><p>${tops.length?`ส่งมากที่สุด <b>${Ls(p,tops)}</b> · ${tv} คน${tops.length>1?' เท่ากัน':''}`:(s?'ยังไม่ระบุรุ่น':'ยังไม่มีผู้สั่ง')}</p></div>`).join('');
 $('dTot').textContent=f(tot);$('sSay').textContent=`ส่งมาแล้ว ${f(tot)} คน!`;$('dProg').textContent=pn+'/5';$('dCoh').textContent=coh;$('dOrd').textContent=`รวม ${f(d.orders||0)} คำสั่งซื้อ`;
 const o=$('dOth');o.hidden=!d.others;o.textContent=d.others?`ผู้สนับสนุนอื่น ๆ (ไม่ใช่ศิษย์เก่า หรือไม่ระบุหลักสูตร) ${f(d.others)} คน`:''};
 {let sd=29;const r=()=>(sd=sd*16807%2147483647)/2147483647;const n=[30,24,20,16,12];let people=0;
